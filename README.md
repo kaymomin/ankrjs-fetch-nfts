@@ -1,34 +1,125 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Fetch all the NFTs owned by a particular wallet or owner across multiple blockchains such as Ethereum, Polygon, and Fantom, to name a few, using [Ankr's Advanced Multichain APIs](https://www.ankr.com/advanced-api/).
+
+### Ankr Advanced APIs
+Ankr's Advanced Multichain APIs are the collection of RPC methods created to simplify querying blockchain data. These APIs do all the heavy lifting for us so that we can query on-chain data in a matter of seconds. 
+
+Currently, it supports six EVM compatible chains: Ethereum, Fantom, Binance Smart Chain, Polygon, Avalanche, Arbitrum, with more EVM and non-EVM chains coming soon. To interact with Ankr's Advanced APIs, we are going to use a JavaScript library named [Ankr.js](https://www.npmjs.com/package/@ankr.com/ankr.js).
+
+_____________________________________________
 
 ## Getting Started
 
-First, run the development server:
+**Prerequisite:** To successfully finish this guide, you'll need [Node.js](https://nodejs.org/en/)↗ and [Yarn](https://yarnpkg.com/)↗ installed on your machine.
 
-```bash
-npm run dev
-# or
+### Step 1: Setting Up Next.js Starter Application
+First up, navigate into the directory of your choice where you want to initiate this project and run the following command in your terminal to set up a new Next.js starter page:
+
+```
+yarn create next-app --ts ankrjs-fetch-nfts
+```
+
+You'll be able to see a couple of files and folders being created for you. Let's dive into the newly created directory and start the development server on localhost:3000.
+
+```
+cd ankrjs-fetch-nfts
+```
+```
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit localhost:3000 to view the starter application and it will resemble the screen attached below: 
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+![screely-1661070904826](https://user-images.githubusercontent.com/44579545/186136296-f2ca991e-c2ea-4bfa-8150-6449f29190d5.png)
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+______________________________________
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Step 2: Installing and Setting Up Ankr.js
 
-## Learn More
+In this section, we will install and set up Ankr.js for querying NFT data from the blockchain for a given wallet address.
 
-To learn more about Next.js, take a look at the following resources:
+We will start by installing the ankr.js package from npm:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+yarn add @ankr.com/ankr.js
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Now that we have installed the Ankr.js library, let's set up Ankr.js by **creating a new file** named `apis.ts` at the root of your project directory. We will initialize Ankr.js in this file.
 
-## Deploy on Vercel
+**File:** `./apis.ts`
+```
+import AnkrscanProvider from '@ankr.com/ankr.js';
+import type { Blockchain } from '@ankr.com/ankr.js/dist/types';
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+const provider = new AnkrscanProvider('');
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```
+To interact with Ankr's Advanced APIs, we have created a provider instance that will serve as an interface to the APIs required to fetch data.
+
+___________________________________
+
+### Step 3: Create getNFTs Function
+
+In this step, you will create a `getNfts` function that accepts a `walletAddress` and returns a list of NFTs owned by that address.
+
+Here, we are going to utilize the `getNFTsByOwner` function provided by Ankr.js for this.
+
+File: `./apis.ts`
+
+```
+import AnkrscanProvider from '@ankr.com/ankr.js';
+import type { Blockchain } from '@ankr.com/ankr.js/dist/types';
+
+const provider = new AnkrscanProvider('');
+
+export const getNfts = async (address: string) => {
+  const { assets } = await provider.getNFTsByOwner({
+    walletAddress: address,
+    blockchain: 'eth',
+  });
+  return {
+    nfts: assets,
+  };
+};
+```
+And that's it. 
+
+Let's call this function on our page i.e. `./pages/index.tsx` to see the fetched NFTs by the owner's wallet address and log the output. To do so, clear the code from the **index.tsx** file and replace it with the one given below:
+
+**File:** `./pages/index.tsx`
+
+```
+import type { NextPage } from 'next';
+import { useEffect } from 'react';
+import { getNfts } from '../apis';
+
+const Home: NextPage = () => {
+  useEffect(() => {
+    (async () => {
+      const { nfts } = await getNfts(
+        '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
+      );
+      console.log({ nfts });
+    })();
+  }, []);
+
+  return (
+  <div className='p-10 flex flex-col items-center'>
+      <h1 className='text-3xl font-bold'>NFTs</h1>
+    </div>
+  );
+};
+
+export default Home;
+```
+
+Now, let's see the NFT logs of an inputted wallet address in the developer console of a browser. 
+
+- Head over to your localhost and use `Option + ⌘ + J` (on macOS), or `Shift + CTRL + J` (on Windows/Linux). 
+
+You should be able to see the list of NFTs owned by a particular address. 
+
+![screely-1661078460144](https://user-images.githubusercontent.com/44579545/186136494-3b6ffa82-b65e-4dde-a931-aabfffa4cf61.png)
+
+You can also extend the toggle to dive into the details of the NFTs held by the owner. Details include: `blockchain`, `collectionName`, `contractAddress`, `contractType`, `imageUrl`, `name`, `symbol`, `tokenId` and `tokenUrl`.
+
+![screely-1661078840436](https://user-images.githubusercontent.com/44579545/186136549-77f10e62-6c6d-459b-80cd-345d81afe8cc.png)
