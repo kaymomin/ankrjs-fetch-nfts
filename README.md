@@ -9,7 +9,7 @@ _____________________________________________
 
 ## Getting Started
 
-**Prerequisite:** To successfully finish this guide, you'll need [Node.js](https://nodejs.org/en/)↗ and [Yarn](https://yarnpkg.com/)↗ installed on your machine.
+**Prerequisite:** To successfully finish this guide, you'll need [Node.js](https://nodejs.org/en/) and [Yarn](https://yarnpkg.com/) installed on your machine.
 
 ### Step 1: Setting Up Next.js Starter Application
 First up, navigate into the directory of your choice where you want to initiate this project and run the following command in your terminal to set up a new Next.js starter page:
@@ -27,9 +27,7 @@ cd ankrjs-fetch-nfts
 yarn dev
 ```
 
-Visit localhost:3000 to view the starter application and it will resemble the screen attached below: 
-
-![screely-1661070904826](https://user-images.githubusercontent.com/44579545/186136296-f2ca991e-c2ea-4bfa-8150-6449f29190d5.png)
+Visit localhost:3000 to view the starter application.
 
 ______________________________________
 
